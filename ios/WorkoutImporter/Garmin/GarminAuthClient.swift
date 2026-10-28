@@ -28,6 +28,16 @@ struct GarminTokens {
 /// Garmin Connect OAuth 2.0 + PKCE client. Uses ASWebAuthenticationSession
 /// (never a raw WKWebView) per the plan's store-review requirement, and keeps
 /// tokens in the Keychain rather than UserDefaults.
+///
+/// KNOWN GAP: Garmin's OAuth2 PKCE spec states the token exchange "must be
+/// performed from the application's backend server... must not be performed
+/// directly from a mobile application... Garmin does not offer a secretless
+/// ('public client') flow." This client currently does the exchange directly
+/// from the device (client_secret bundled via Secrets.xcconfig) to unblock
+/// local testing against your own Garmin account. Before any real release,
+/// this needs a small backend relay: the app sends {code, code_verifier} to
+/// our server, the server (holding the only copy of client_secret) calls
+/// Garmin's token endpoint and returns the tokens to the app.
 @MainActor
 final class GarminAuthClient: NSObject, ASWebAuthenticationPresentationContextProviding {
     static let shared = GarminAuthClient()
@@ -130,7 +140,6 @@ final class GarminAuthClient: NSObject, ASWebAuthenticationPresentationContextPr
             "grant_type": "authorization_code",
             "code": code,
             "redirect_uri": GarminConfig.redirectURI,
-            "client_id": GarminConfig.clientID,
             "code_verifier": codeVerifier,
         ])
     }
@@ -139,10 +148,11 @@ final class GarminAuthClient: NSObject, ASWebAuthenticationPresentationContextPr
         try await postForTokens(form: [
             "grant_type": "refresh_token",
             "refresh_token": refreshToken,
-            "client_id": GarminConfig.clientID,
         ])
     }
 
+    /// Per Garmin's OAuth2 PKCE spec, client credentials go in an HTTP Basic
+    /// Authorization header (base64 of "client_id:client_secret"), not as form fields.
     private func postForTokens(form: [String: String]) async throws -> GarminTokens {
         var request = URLRequest(url: GarminConfig.tokenURL)
         request.httpMethod = "POST"

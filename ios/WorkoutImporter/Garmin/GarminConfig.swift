@@ -6,6 +6,11 @@ import Foundation
 /// `ios/Secrets.xcconfig` (gitignored, real values) at build time -- see
 /// `Secrets.xcconfig.example` for the template. This keeps real credentials
 /// out of source control even though the repo is public.
+///
+/// Endpoints per Garmin's official "OAuth2.0 PKCE Specification" doc (the
+/// fuller version with sections on deregistration/permission notifications,
+/// which also states the token exchange must happen from the app's backend,
+/// not the device -- see GarminAuthClient's doc comment).
 enum GarminConfig {
     static let baseURL = URL(string: "https://connect.garmin.com")!
     static let authBaseURL = URL(string: "https://diauth.garmin.com")!

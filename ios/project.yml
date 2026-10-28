@@ -36,6 +36,8 @@ targets:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.matheusgoncalves.workoutimporter
         TARGETED_DEVICE_FAMILY: "1"
+        CODE_SIGN_STYLE: Automatic
+        DEVELOPMENT_TEAM: P7GLSD99YH
       configFiles:
         Debug: Secrets.xcconfig
         Release: Secrets.xcconfig

@@ -20,6 +20,12 @@ targets:
           UIApplicationSupportsMultipleScenes: false
         NSHealthShareUsageDescription: "WorkoutImporter uses HealthKit to schedule structured workouts on your Apple Watch."
         NSHealthUpdateUsageDescription: "WorkoutImporter uses HealthKit to schedule structured workouts on your Apple Watch."
+        CFBundleURLTypes:
+          - CFBundleURLSchemes:
+              - workoutimporter
+            CFBundleURLName: com.matheusgoncalves.workoutimporter.garmin-oauth
+        NSAppTransportSecurity:
+          NSAllowsLocalNetworking: true
     entitlements:
       path: WorkoutImporter/App/WorkoutImporter.entitlements
       properties:

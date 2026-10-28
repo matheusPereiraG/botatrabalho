@@ -7,6 +7,8 @@ final class WorkoutImportViewModel: ObservableObject {
     @Published var warnings: [ImportWarning] = []
     @Published var statusMessage: String?
     @Published var isSending = false
+    @Published var isGarminConnected = GarminAuthClient.shared.isConnected
+    @Published var isSendingToGarmin = false
 
     func loadSample() {
         do {
@@ -50,6 +52,42 @@ final class WorkoutImportViewModel: ObservableObject {
                 statusMessage = "Couldn't send to Apple Watch: \(error.localizedDescription)"
             }
             isSending = false
+        }
+    }
+
+    func connectGarmin() {
+        isSendingToGarmin = true
+        statusMessage = nil
+        Task {
+            do {
+                try await GarminAuthClient.shared.connect()
+                isGarminConnected = true
+                statusMessage = "Connected to Garmin."
+            } catch {
+                statusMessage = "Couldn't connect to Garmin: \(error.localizedDescription)"
+            }
+            isSendingToGarmin = false
+        }
+    }
+
+    func disconnectGarmin() {
+        GarminAuthClient.shared.disconnect()
+        isGarminConnected = false
+        statusMessage = "Disconnected from Garmin."
+    }
+
+    func sendToGarmin() {
+        guard let workout else { return }
+        isSendingToGarmin = true
+        statusMessage = nil
+        Task {
+            do {
+                try await GarminPushClient.push(workout)
+                statusMessage = "Sent to Garmin Connect. It'll sync to your device shortly."
+            } catch {
+                statusMessage = "Couldn't send to Garmin: \(error.localizedDescription)"
+            }
+            isSendingToGarmin = false
         }
     }
 }
@@ -99,6 +137,35 @@ struct ContentView: View {
                             }
                         }
                         .disabled(viewModel.isSending)
+                    }
+
+                    Section {
+                        if viewModel.isGarminConnected {
+                            Button {
+                                viewModel.sendToGarmin()
+                            } label: {
+                                if viewModel.isSendingToGarmin {
+                                    ProgressView()
+                                } else {
+                                    Text("Send to Garmin")
+                                }
+                            }
+                            .disabled(viewModel.isSendingToGarmin)
+                            Button("Disconnect Garmin", role: .destructive) {
+                                viewModel.disconnectGarmin()
+                            }
+                        } else {
+                            Button {
+                                viewModel.connectGarmin()
+                            } label: {
+                                if viewModel.isSendingToGarmin {
+                                    ProgressView()
+                                } else {
+                                    Text("Connect Garmin")
+                                }
+                            }
+                            .disabled(viewModel.isSendingToGarmin)
+                        }
                     }
 
                     if let status = viewModel.statusMessage {

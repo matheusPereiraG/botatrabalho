@@ -26,6 +26,8 @@ targets:
             CFBundleURLName: com.matheusgoncalves.workoutimporter.garmin-oauth
         NSAppTransportSecurity:
           NSAllowsLocalNetworking: true
+        GarminClientID: "$(GARMIN_CLIENT_ID)"
+        GarminClientSecret: "$(GARMIN_CLIENT_SECRET)"
     entitlements:
       path: WorkoutImporter/App/WorkoutImporter.entitlements
       properties:
@@ -34,6 +36,9 @@ targets:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.matheusgoncalves.workoutimporter
         TARGETED_DEVICE_FAMILY: "1"
+      configFiles:
+        Debug: Secrets.xcconfig
+        Release: Secrets.xcconfig
 schemes:
   WorkoutImporter:
     build:

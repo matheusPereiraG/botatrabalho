@@ -2,19 +2,18 @@ import Foundation
 
 /// Endpoints and client identity for the Garmin Connect Developer "Training API".
 ///
-/// Points at the local mock server (mock-server/garmin_mock_server.py) by default,
-/// since the real Training API's exact payload schema is gated behind Garmin's
-/// developer-program approval (see the plan's Phase 0/2 notes). Once a real
-/// client ID and API access are granted, swap `baseURL` and `clientID` for the
-/// production values -- the OAuth PKCE flow and push client are written against
-/// the publicly documented shape and shouldn't need structural changes.
+/// Client ID/secret come from Info.plist, which xcodegen fills in from
+/// `ios/Secrets.xcconfig` (gitignored, real values) at build time -- see
+/// `Secrets.xcconfig.example` for the template. This keeps real credentials
+/// out of source control even though the repo is public.
 enum GarminConfig {
-    /// The mock server's address as seen from the iOS Simulator (shares the host's
-    /// network namespace). On a physical device this must be the host machine's
-    /// LAN IP instead of 127.0.0.1.
-    static let baseURL = URL(string: "http://127.0.0.1:8899")!
+    static let baseURL = URL(string: "https://connect.garmin.com")!
+    static let authBaseURL = URL(string: "https://diauth.garmin.com")!
+    static let apiBaseURL = URL(string: "https://apis.garmin.com")!
 
-    static let clientID = "mock-client-id"
+    static let clientID: String = Bundle.main.object(forInfoDictionaryKey: "GarminClientID") as? String ?? ""
+    static let clientSecret: String = Bundle.main.object(forInfoDictionaryKey: "GarminClientSecret") as? String ?? ""
+
     /// Garmin's developer portal requires an http(s) redirect URL, so this points
     /// at a small bridge page on GitHub Pages (docs/oauth-callback.html) that
     /// JS-redirects into the app via `redirectScheme`. ASWebAuthenticationSession
@@ -24,6 +23,6 @@ enum GarminConfig {
     static let redirectScheme = "workoutimporter"
 
     static var authorizationURL: URL { baseURL.appendingPathComponent("oauth2Confirm") }
-    static var tokenURL: URL { baseURL.appendingPathComponent("di-oauth2-service/oauth/token") }
-    static var pushURL: URL { baseURL.appendingPathComponent("workout") }
+    static var tokenURL: URL { authBaseURL.appendingPathComponent("di-oauth2-service/oauth/token") }
+    static var pushURL: URL { apiBaseURL.appendingPathComponent("training-api/workout") }
 }

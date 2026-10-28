@@ -29,6 +29,10 @@
 	</array>
 	<key>CFBundleVersion</key>
 	<string>1</string>
+	<key>GarminClientID</key>
+	<string>$(GARMIN_CLIENT_ID)</string>
+	<key>GarminClientSecret</key>
+	<string>$(GARMIN_CLIENT_SECRET)</string>
 	<key>NSAppTransportSecurity</key>
 	<dict>
 		<key>NSAllowsLocalNetworking</key>

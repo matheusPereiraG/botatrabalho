@@ -147,6 +147,10 @@ final class GarminAuthClient: NSObject, ASWebAuthenticationPresentationContextPr
         var request = URLRequest(url: GarminConfig.tokenURL)
         request.httpMethod = "POST"
         request.setValue("application/x-www-form-urlencoded", forHTTPHeaderField: "Content-Type")
+        let credentials = "\(GarminConfig.clientID):\(GarminConfig.clientSecret)"
+        if let basic = credentials.data(using: .utf8)?.base64EncodedString() {
+            request.setValue("Basic \(basic)", forHTTPHeaderField: "Authorization")
+        }
         request.httpBody = form
             .map { "\($0.key)=\($0.value.addingPercentEncoding(withAllowedCharacters: .urlQueryValueAllowed) ?? "")" }
             .joined(separator: "&")

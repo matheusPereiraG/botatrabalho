@@ -1,4 +1,5 @@
 import SwiftUI
+import UniformTypeIdentifiers
 
 @MainActor
 final class WorkoutImportViewModel: ObservableObject {
@@ -10,12 +11,29 @@ final class WorkoutImportViewModel: ObservableObject {
     func loadSample() {
         do {
             let dto = try GarminWorkoutLoader.loadBundledSample()
-            let (workout, warnings) = InternalWorkoutMapper.map(dto)
-            self.workout = workout
-            self.warnings = warnings
+            apply(dto)
         } catch {
             statusMessage = "Couldn't load sample workout: \(error.localizedDescription)"
         }
+    }
+
+    func loadFile(at url: URL) {
+        statusMessage = nil
+        let didStartAccess = url.startAccessingSecurityScopedResource()
+        defer { if didStartAccess { url.stopAccessingSecurityScopedResource() } }
+        do {
+            let data = try Data(contentsOf: url)
+            let dto = try GarminWorkoutLoader.load(from: data)
+            apply(dto)
+        } catch {
+            statusMessage = "Couldn't import \(url.lastPathComponent): \(error.localizedDescription)"
+        }
+    }
+
+    private func apply(_ dto: GarminWorkoutDTO) {
+        let (workout, warnings) = InternalWorkoutMapper.map(dto)
+        self.workout = workout
+        self.warnings = warnings
     }
 
     func sendToAppleWatch() {
@@ -45,6 +63,7 @@ private extension Array where Element == ImportWarning {
 
 struct ContentView: View {
     @StateObject private var viewModel = WorkoutImportViewModel()
+    @State private var isImporterPresented = false
 
     var body: some View {
         NavigationStack {
@@ -92,6 +111,19 @@ struct ContentView: View {
                 }
             }
             .navigationTitle("Workout Importer")
+            .toolbar {
+                ToolbarItem(placement: .primaryAction) {
+                    Button("Import…") { isImporterPresented = true }
+                }
+            }
+            .fileImporter(isPresented: $isImporterPresented, allowedContentTypes: [.json]) { result in
+                switch result {
+                case .success(let url):
+                    viewModel.loadFile(at: url)
+                case .failure(let error):
+                    viewModel.statusMessage = "Import cancelled: \(error.localizedDescription)"
+                }
+            }
             .onAppear { viewModel.loadSample() }
         }
     }

@@ -1,0 +1,6 @@
+<svg width="300" height="300" viewBox="0 0 300 300" xmlns="http://www.w3.org/2000/svg">
+  <rect width="300" height="300" fill="#0a66c2"/>
+  <circle cx="150" cy="150" r="110" fill="none" stroke="#ffffff" stroke-width="10"/>
+  <path d="M90 190 L130 120 L160 160 L190 100 L220 190" fill="none" stroke="#ffffff" stroke-width="12" stroke-linecap="round" stroke-linejoin="round"/>
+  <text x="150" y="245" font-family="-apple-system, Helvetica, Arial, sans-serif" font-size="28" font-weight="700" fill="#ffffff" text-anchor="middle">Bota Trabalho</text>
+</svg>

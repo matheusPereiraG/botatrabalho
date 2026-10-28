@@ -1,0 +1,16 @@
+
+# Xcode / iOS
+ios/*.xcodeproj/
+ios/DerivedData/
+ios/build/
+*.xcuserstate
+*.xcuserdatad/
+.DS_Store
+
+# Android (for Phase 2)
+android/.gradle/
+android/build/
+android/app/build/
+android/local.properties
+android/.idea/
+android/*.iml

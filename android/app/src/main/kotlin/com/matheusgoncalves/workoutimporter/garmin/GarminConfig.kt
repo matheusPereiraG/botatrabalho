@@ -12,7 +12,9 @@ package com.matheusgoncalves.workoutimporter.garmin
 object GarminConfig {
     const val BASE_URL = "http://10.0.2.2:8899"
     const val CLIENT_ID = "mock-client-id"
-    const val REDIRECT_URI = "workoutimporter://oauth-callback"
+    /** Garmin requires an http(s) redirect URL; see GarminConfig.swift's doc comment
+     *  for why this points at a GitHub Pages bridge page instead of the app scheme. */
+    const val REDIRECT_URI = "https://matheuspereirag.github.io/botatrabalho/oauth-callback.html"
 
     val authorizationUrl get() = "$BASE_URL/oauth2Confirm"
     val tokenUrl get() = "$BASE_URL/di-oauth2-service/oauth/token"

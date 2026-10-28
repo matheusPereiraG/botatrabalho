@@ -15,7 +15,12 @@ enum GarminConfig {
     static let baseURL = URL(string: "http://127.0.0.1:8899")!
 
     static let clientID = "mock-client-id"
-    static let redirectURI = "workoutimporter://oauth-callback"
+    /// Garmin's developer portal requires an http(s) redirect URL, so this points
+    /// at a small bridge page on GitHub Pages (docs/oauth-callback.html) that
+    /// JS-redirects into the app via `redirectScheme`. ASWebAuthenticationSession
+    /// still watches for `redirectScheme`, not this URL, so it ignores the bridge
+    /// page's own https navigation and only resolves once the bridge redirects.
+    static let redirectURI = "https://matheuspereirag.github.io/botatrabalho/oauth-callback.html"
     static let redirectScheme = "workoutimporter"
 
     static var authorizationURL: URL { baseURL.appendingPathComponent("oauth2Confirm") }
